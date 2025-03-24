@@ -16,9 +16,15 @@ const contactFormSchema = z.object({
 
 type ContactFormType = z.infer<typeof contactFormSchema>;
 
+// Add newsletter validation schema
+const newsletterSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+});
+
+type NewsletterFormType = z.infer<typeof newsletterSchema>;
+
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [email, setEmail] = useState('');
   const [activeService, setActiveService] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,6 +36,13 @@ function App() {
     message: ''
   });
   const [cooldownTime, setCooldownTime] = useState(0);
+  const [showNewsletterSuccess, setShowNewsletterSuccess] = useState(false);
+  const [newsletterForm, setNewsletterForm] = useState<NewsletterFormType>({
+    email: ''
+  });
+  const [newsletterErrors, setNewsletterErrors] = useState<{ [key: string]: string }>({});
+  const [isNewsletterSubmitting, setIsNewsletterSubmitting] = useState(false);
+  const [showNewsletterSection, setShowNewsletterSection] = useState(true);
 
   // Add cooldown timer effect
   useEffect(() => {
@@ -44,10 +57,59 @@ function App() {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  const handleNewsletterSubmit = (e: React.FormEvent) => {
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Newsletter subscription:', email);
-    setEmail('');
+    setNewsletterErrors({});
+
+    try {
+      const validatedData = newsletterSchema.parse(newsletterForm);
+      setIsNewsletterSubmitting(true);
+
+      const response = await fetch('https://hook.us2.make.com/23bf118nwm3ahp7g2h91nihefk9ybpww', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...validatedData,
+          type: 'newsletter'
+        }),
+      });
+
+      if (response.ok) {
+        setShowNewsletterSuccess(true);
+        setNewsletterForm({ email: '' });
+        // Hide newsletter section after 2 seconds
+        setTimeout(() => {
+          setShowNewsletterSection(false);
+        }, 2000);
+      } else {
+        throw new Error('Failed to subscribe');
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        const errors: { [key: string]: string } = {};
+        error.errors.forEach((err) => {
+          if (err.path) {
+            errors[err.path[0]] = err.message;
+          }
+        });
+        setNewsletterErrors(errors);
+      } else {
+        console.error('Error subscribing:', error);
+        alert('Failed to subscribe. Please try again later.');
+      }
+    } finally {
+      setIsNewsletterSubmitting(false);
+    }
+  };
+
+  const handleNewsletterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setNewsletterForm({ email: value });
+    if (newsletterErrors.email) {
+      setNewsletterErrors(prev => ({ ...prev, email: '' }));
+    }
   };
 
   const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -55,7 +117,6 @@ function App() {
     setFormErrors({});
 
     try {
-      // Validate form data
       const validatedData = contactFormSchema.parse(contactForm);
       setIsSubmitting(true);
 
@@ -64,7 +125,10 @@ function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(validatedData),
+        body: JSON.stringify({
+          ...validatedData,
+          type: 'contact'
+        }),
       });
 
       if (response.ok) {
@@ -215,6 +279,12 @@ function App() {
         <SuccessPopup
           message="Thank you for reaching out! We'll get back to you soon."
           onClose={() => setShowSuccess(false)}
+        />
+      )}
+      {showNewsletterSuccess && (
+        <SuccessPopup
+          message="Thank you for subscribing to our newsletter!"
+          onClose={() => setShowNewsletterSuccess(false)}
         />
       )}
       {/* Navigation */}
@@ -456,29 +526,47 @@ function App() {
       </section>
 
       {/* Newsletter Section */}
-      <section id="newsletter" className="section bg-[--primary-red]/5">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold mb-6">Stay Updated</h2>
-          <p className="text-white/70 mb-8 max-w-2xl">
-            Subscribe to our newsletter for the latest updates in technology and drone innovations.
-          </p>
-          <form onSubmit={handleNewsletterSubmit} className="max-w-md">
-            <div className="flex gap-4">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:border-white/40"
-                required
-              />
-              <button type="submit" className="btn-primary">
-                Subscribe
-              </button>
-            </div>
-          </form>
-        </div>
-      </section>
+      {showNewsletterSection && (
+        <section id="newsletter" className="section bg-[--primary-red]/5">
+          <div className="container mx-auto px-4">
+            <h2 className="text-4xl font-bold mb-6">Stay Updated</h2>
+            <p className="text-white/70 mb-8 max-w-2xl">
+              Subscribe to our newsletter for the latest updates in technology and drone innovations.
+            </p>
+            <form onSubmit={handleNewsletterSubmit} className="max-w-md">
+              <div className="flex flex-col gap-4">
+                <div>
+                  <input
+                    type="email"
+                    value={newsletterForm.email}
+                    onChange={handleNewsletterChange}
+                    placeholder="Enter your email"
+                    className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${newsletterErrors.email ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40`}
+                    required
+                  />
+                  {newsletterErrors.email && (
+                    <p className="mt-1 text-sm text-red-500">{newsletterErrors.email}</p>
+                  )}
+                </div>
+                <button 
+                  type="submit" 
+                  className="btn-primary relative"
+                  disabled={isNewsletterSubmitting}
+                >
+                  {isNewsletterSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                      Subscribing...
+                    </span>
+                  ) : (
+                    'Subscribe'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </section>
+      )}
 
       {/* Contact Section */}
       <section id="contact" className="section">
