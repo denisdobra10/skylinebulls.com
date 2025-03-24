@@ -1,9 +1,20 @@
 import React, { useState } from 'react';
 import { Plane, Code, Send, ChevronRight, Menu, X, Globe, Shield, Database, Camera, Map, Building, Server, Cpu, Network, Bot, Brain, Sparkles, Zap, Workflow, GitBranch } from 'lucide-react';
+import { z } from 'zod';
 import StarryBackground from './components/StarryBackground';
 import CodeBlock from './components/CodeBlock';
 import SuccessPopup from './components/SuccessPopup';
 import './styles/prism-custom.css';
+
+// Validation schema
+const contactFormSchema = z.object({
+  name: z.string().min(2, 'Name must be at least 2 characters').max(50, 'Name must be less than 50 characters'),
+  email: z.string().email('Please enter a valid email address'),
+  phone: z.string().regex(/^[0-9+\-\s]*$/, 'Please enter a valid phone number').optional(),
+  message: z.string().min(10, 'Message must be at least 10 characters').max(1000, 'Message must be less than 1000 characters'),
+});
+
+type ContactFormType = z.infer<typeof contactFormSchema>;
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -11,7 +22,8 @@ function App() {
   const [activeService, setActiveService] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [contactForm, setContactForm] = useState({
+  const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
+  const [contactForm, setContactForm] = useState<ContactFormType>({
     name: '',
     email: '',
     phone: '',
@@ -28,15 +40,19 @@ function App() {
 
   const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setFormErrors({});
 
     try {
+      // Validate form data
+      const validatedData = contactFormSchema.parse(contactForm);
+      setIsSubmitting(true);
+
       const response = await fetch('https://hook.us2.make.com/23bf118nwm3ahp7g2h91nihefk9ybpww', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(contactForm),
+        body: JSON.stringify(validatedData),
       });
 
       if (response.ok) {
@@ -46,8 +62,19 @@ function App() {
         throw new Error('Failed to submit form');
       }
     } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('Failed to submit form. Please try again later.');
+      if (error instanceof z.ZodError) {
+        // Handle validation errors
+        const errors: { [key: string]: string } = {};
+        error.errors.forEach((err) => {
+          if (err.path) {
+            errors[err.path[0]] = err.message;
+          }
+        });
+        setFormErrors(errors);
+      } else {
+        console.error('Error submitting form:', error);
+        alert('Failed to submit form. Please try again later.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -56,6 +83,10 @@ function App() {
   const handleContactChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setContactForm(prev => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (formErrors[name]) {
+      setFormErrors(prev => ({ ...prev, [name]: '' }));
+    }
   };
 
   const codeExample = `<div class="flex min-h-screen bg-gradient-to-r from-slate-900 to-slate-800">
@@ -458,9 +489,12 @@ function App() {
                   name="name"
                   value={contactForm.name}
                   onChange={handleContactChange}
-                  className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:border-white/40"
+                  className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.name ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40`}
                   required
                 />
+                {formErrors.name && (
+                  <p className="mt-1 text-sm text-red-500">{formErrors.name}</p>
+                )}
               </div>
               <div>
                 <input
@@ -469,9 +503,12 @@ function App() {
                   name="email"
                   value={contactForm.email}
                   onChange={handleContactChange}
-                  className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:border-white/40"
+                  className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.email ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40`}
                   required
                 />
+                {formErrors.email && (
+                  <p className="mt-1 text-sm text-red-500">{formErrors.email}</p>
+                )}
               </div>
               <div>
                 <div className="relative">
@@ -481,12 +518,15 @@ function App() {
                     name="phone"
                     value={contactForm.phone}
                     onChange={handleContactChange}
-                    className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:border-white/40"
+                    className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.phone ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40`}
                     pattern="[0-9+\-\s]*"
                     title="Please enter a valid phone number"
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/30">Optional</span>
                 </div>
+                {formErrors.phone && (
+                  <p className="mt-1 text-sm text-red-500">{formErrors.phone}</p>
+                )}
               </div>
               <div>
                 <textarea
@@ -495,9 +535,12 @@ function App() {
                   name="message"
                   value={contactForm.message}
                   onChange={handleContactChange}
-                  className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:border-white/40"
+                  className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.message ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40`}
                   required
                 ></textarea>
+                {formErrors.message && (
+                  <p className="mt-1 text-sm text-red-500">{formErrors.message}</p>
+                )}
               </div>
               <button 
                 type="submit" 
