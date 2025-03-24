@@ -106,10 +106,10 @@ The website is configured for easy deployment on Vercel:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under Skyline Bulls Technology LLC.
 
 ## Contact
 
-Skyline Bulls Technology - [contact@skylinebulls.tech](mailto:contact@skylinebulls.tech)
+Skyline Bulls Technology - [office@skylinebulls.com](mailto:office@skylinebulls.com)
 
-Project Link: [https://github.com/yourusername/skylinebulls.com](https://github.com/yourusername/skylinebulls.com) 
+Project Link: [https://github.com/denisdobra10/skylinebulls.com](https://github.com/denisdobra10/skylinebulls.com) 
