@@ -8,6 +8,12 @@ function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [activeService, setActiveService] = useState<string | null>(null);
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    message: ''
+  });
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -19,7 +25,13 @@ function App() {
 
   const handleContactSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Contact form submitted');
+    console.log('Contact form submitted:', contactForm);
+    setContactForm({ name: '', email: '', phone: '', message: '' });
+  };
+
+  const handleContactChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setContactForm(prev => ({ ...prev, [name]: value }));
   };
 
   const codeExample = `<div class="flex min-h-screen bg-gradient-to-r from-slate-900 to-slate-800">
@@ -413,6 +425,9 @@ function App() {
                 <input
                   type="text"
                   placeholder="Your Name"
+                  name="name"
+                  value={contactForm.name}
+                  onChange={handleContactChange}
                   className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:border-white/40"
                   required
                 />
@@ -421,14 +436,35 @@ function App() {
                 <input
                   type="email"
                   placeholder="Your Email"
+                  name="email"
+                  value={contactForm.email}
+                  onChange={handleContactChange}
                   className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:border-white/40"
                   required
                 />
               </div>
               <div>
+                <div className="relative">
+                  <input
+                    type="tel"
+                    placeholder="Your Phone (optional)"
+                    name="phone"
+                    value={contactForm.phone}
+                    onChange={handleContactChange}
+                    className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:border-white/40"
+                    pattern="[0-9+\-\s]*"
+                    title="Please enter a valid phone number"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/30">Optional</span>
+                </div>
+              </div>
+              <div>
                 <textarea
                   placeholder="Your Message"
                   rows={4}
+                  name="message"
+                  value={contactForm.message}
+                  onChange={handleContactChange}
                   className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:border-white/40"
                   required
                 ></textarea>
