@@ -1,0 +1,55 @@
+pre[class*="language-"] {
+  padding: 1.5rem !important;
+  margin: 0 !important;
+  overflow: auto;
+  background: #1e1e1e !important;
+  font-family: 'Fira Code', Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+code[class*="language-"] {
+  background: none !important;
+  color: #d4d4d4 !important;
+  text-shadow: none !important;
+}
+
+.token.tag {
+  color: #569cd6 !important;
+}
+
+.token.attr-name {
+  color: #9cdcfe !important;
+}
+
+.token.attr-value {
+  color: #ce9178 !important;
+}
+
+.token.string {
+  color: #ce9178 !important;
+}
+
+.token.punctuation {
+  color: #d4d4d4 !important;
+}
+
+.token.operator {
+  color: #d4d4d4 !important;
+}
+
+.token.comment {
+  color: #6a9955 !important;
+}
+
+.token.function {
+  color: #dcdcaa !important;
+}
+
+.token.keyword {
+  color: #569cd6 !important;
+}
+
+.token.class-name {
+  color: #4ec9b0 !important;
+} 
