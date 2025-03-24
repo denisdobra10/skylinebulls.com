@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plane, Code, Send, ChevronRight, Menu, X, Globe, Shield, Database, Camera, Map, Building, Server, Cpu, Network, Bot, Brain, Sparkles, Zap, Workflow, GitBranch } from 'lucide-react';
 import { z } from 'zod';
 import StarryBackground from './components/StarryBackground';
@@ -29,6 +29,18 @@ function App() {
     phone: '',
     message: ''
   });
+  const [cooldownTime, setCooldownTime] = useState(0);
+
+  // Add cooldown timer effect
+  useEffect(() => {
+    let timer: ReturnType<typeof setInterval>;
+    if (cooldownTime > 0) {
+      timer = setInterval(() => {
+        setCooldownTime(prev => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [cooldownTime]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -58,6 +70,8 @@ function App() {
       if (response.ok) {
         setShowSuccess(true);
         setContactForm({ name: '', email: '', phone: '', message: '' });
+        // Start 30 second cooldown
+        setCooldownTime(30);
       } else {
         throw new Error('Failed to submit form');
       }
@@ -489,8 +503,9 @@ function App() {
                   name="name"
                   value={contactForm.name}
                   onChange={handleContactChange}
-                  className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.name ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40`}
+                  className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.name ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40 ${cooldownTime > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                   required
+                  disabled={cooldownTime > 0}
                 />
                 {formErrors.name && (
                   <p className="mt-1 text-sm text-red-500">{formErrors.name}</p>
@@ -503,8 +518,9 @@ function App() {
                   name="email"
                   value={contactForm.email}
                   onChange={handleContactChange}
-                  className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.email ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40`}
+                  className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.email ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40 ${cooldownTime > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                   required
+                  disabled={cooldownTime > 0}
                 />
                 {formErrors.email && (
                   <p className="mt-1 text-sm text-red-500">{formErrors.email}</p>
@@ -518,9 +534,10 @@ function App() {
                     name="phone"
                     value={contactForm.phone}
                     onChange={handleContactChange}
-                    className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.phone ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40`}
+                    className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.phone ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40 ${cooldownTime > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                     pattern="[0-9+\-\s]*"
                     title="Please enter a valid phone number"
+                    disabled={cooldownTime > 0}
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/30">Optional</span>
                 </div>
@@ -535,8 +552,9 @@ function App() {
                   name="message"
                   value={contactForm.message}
                   onChange={handleContactChange}
-                  className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.message ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40`}
+                  className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.message ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40 ${cooldownTime > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                   required
+                  disabled={cooldownTime > 0}
                 ></textarea>
                 {formErrors.message && (
                   <p className="mt-1 text-sm text-red-500">{formErrors.message}</p>
@@ -544,13 +562,18 @@ function App() {
               </div>
               <button 
                 type="submit" 
-                className="btn-primary relative" 
-                disabled={isSubmitting}
+                className={`btn-primary relative ${cooldownTime > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                disabled={isSubmitting || cooldownTime > 0}
               >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
                     <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
                     Sending...
+                  </span>
+                ) : cooldownTime > 0 ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                    Please wait {cooldownTime}s
                   </span>
                 ) : (
                   'Send Message'
