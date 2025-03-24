@@ -450,7 +450,7 @@ function App() {
               <span className="font-bold">Skyline Bulls Technology</span>
             </div>
             <div className="text-white/50">
-              © {new Date().getFullYear()} Skyline Bulls. All rights reserved.
+              © {new Date().getFullYear()} Skyline Bulls. All rights reserved. | Deployed with ❤️ on Vercel
             </div>
           </div>
         </div>
