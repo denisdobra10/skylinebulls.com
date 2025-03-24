@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { Plane, Code, Send, ChevronRight, Menu, X, Globe, Shield, Database, Camera, Map, Building, Server, Cpu, Network, Bot, Brain, Sparkles, Zap, Workflow, GitBranch } from 'lucide-react';
 import StarryBackground from './components/StarryBackground';
 import CodeBlock from './components/CodeBlock';
+import SuccessPopup from './components/SuccessPopup';
 import './styles/prism-custom.css';
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [activeService, setActiveService] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [contactForm, setContactForm] = useState({
     name: '',
     email: '',
@@ -23,10 +26,31 @@ function App() {
     setEmail('');
   };
 
-  const handleContactSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Contact form submitted:', contactForm);
-    setContactForm({ name: '', email: '', phone: '', message: '' });
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('https://hook.us2.make.com/23bf118nwm3ahp7g2h91nihefk9ybpww', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(contactForm),
+      });
+
+      if (response.ok) {
+        setShowSuccess(true);
+        setContactForm({ name: '', email: '', phone: '', message: '' });
+      } else {
+        throw new Error('Failed to submit form');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('Failed to submit form. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleContactChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -142,6 +166,12 @@ function App() {
   return (
     <div className="min-h-screen bg-transparent">
       <StarryBackground />
+      {showSuccess && (
+        <SuccessPopup
+          message="Thank you for reaching out! We'll get back to you soon."
+          onClose={() => setShowSuccess(false)}
+        />
+      )}
       {/* Navigation */}
       <nav className="fixed w-full bg-black/25 backdrop-blur-sm z-50">
         <div className="container mx-auto px-4 py-4">
@@ -469,8 +499,19 @@ function App() {
                   required
                 ></textarea>
               </div>
-              <button type="submit" className="btn-primary">
-                Send Message
+              <button 
+                type="submit" 
+                className="btn-primary relative" 
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                    Sending...
+                  </span>
+                ) : (
+                  'Send Message'
+                )}
               </button>
             </form>
           </div>
