@@ -20,20 +20,22 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'html', fileName
   }, [code]);
 
   return (
-    <div className="rounded-lg bg-[#1e1e1e] overflow-hidden shadow-2xl">
-      <div className="flex items-center gap-2 px-4 py-2 bg-[#2d2d2d]">
+    <div className="rounded-lg bg-[#1e1e1e] overflow-hidden shadow-2xl w-full">
+      <div className="flex items-center gap-2 px-4 py-2 bg-[#2d2d2d] sticky top-0">
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
           <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
           <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
         </div>
-        <span className="ml-2 text-[#808080] text-sm font-mono">{fileName}</span>
+        <span className="ml-2 text-[#808080] text-sm font-mono truncate">{fileName}</span>
       </div>
-      <pre className="!m-0 !bg-[#1e1e1e] !rounded-none">
-        <code className={`language-${language}`}>
-          {code}
-        </code>
-      </pre>
+      <div className="overflow-x-auto">
+        <pre className="!m-0 !bg-[#1e1e1e] !rounded-none min-w-max">
+          <code className={`language-${language} text-sm md:text-base`}>
+            {code}
+          </code>
+        </pre>
+      </div>
     </div>
   );
 };

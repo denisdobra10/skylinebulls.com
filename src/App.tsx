@@ -214,8 +214,8 @@ function App() {
       {/* IT Services Section */}
       <section id="it-services" className="section">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row gap-12 items-center mb-16">
-            <div className="flex-1">
+          <div className="flex flex-col md:flex-row gap-12 items-start mb-16">
+            <div className="flex-1 w-full">
               <h2 className="text-4xl font-bold mb-6">IT Services</h2>
               <p className="text-xl text-white/70 mb-8">
                 Enterprise-grade solutions built with cutting-edge technology to drive your business forward
@@ -227,7 +227,7 @@ function App() {
                 <span className="px-4 py-2 rounded-full bg-white/10 text-sm">DevOps</span>
               </div>
             </div>
-            <div className="flex-1">
+            <div className="flex-1 w-full overflow-hidden">
               <CodeBlock code={codeExample} language="html" fileName="example.html" />
             </div>
           </div>
