@@ -1,10 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Plane, Code, Send, ChevronRight, Menu, X, Globe, Shield, Database, Camera, Map, Building, Server, Cpu, Network, Bot, Brain, Sparkles, Zap, Workflow, GitBranch } from 'lucide-react';
 import { z } from 'zod';
+import { gsap } from 'gsap';
 import StarryBackground from './components/StarryBackground';
 import CodeBlock from './components/CodeBlock';
 import SuccessPopup from './components/SuccessPopup';
+import InteractiveCircles from './components/InteractiveCircles';
+import FadeInSection from './components/FadeInSection';
+import Footer from './components/Footer';
 import './styles/prism-custom.css';
+import IntroAnimation from './components/IntroAnimation';
 
 // Validation schema
 const contactFormSchema = z.object({
@@ -43,6 +48,8 @@ function App() {
   const [newsletterErrors, setNewsletterErrors] = useState<{ [key: string]: string }>({});
   const [isNewsletterSubmitting, setIsNewsletterSubmitting] = useState(false);
   const [showNewsletterSection, setShowNewsletterSection] = useState(true);
+  const [showMainContent, setShowMainContent] = useState(false);
+  const mainContentRef = useRef<HTMLDivElement>(null);
 
   // Add cooldown timer effect
   useEffect(() => {
@@ -54,6 +61,19 @@ function App() {
     }
     return () => clearInterval(timer);
   }, [cooldownTime]);
+
+  useEffect(() => {
+    if (showMainContent && mainContentRef.current) {
+      gsap.fromTo(mainContentRef.current,
+        { opacity: 0 },
+        { 
+          opacity: 1,
+          duration: 1,
+          ease: "power2.inOut"
+        }
+      );
+    }
+  }, [showMainContent]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -186,25 +206,7 @@ function App() {
       icon: <Globe className="h-8 w-8" />,
       name: "Web Development",
       description: "Custom web applications and responsive websites built with modern frameworks",
-      features: ["React & Next.js", "Progressive Web Apps", "API Development", "UI/UX Design"]
-    },
-    {
-      icon: <Shield className="h-8 w-8" />,
-      name: "Cybersecurity",
-      description: "Advanced security solutions to protect your digital assets",
-      features: ["Penetration Testing", "Security Audits", "Incident Response", "Security Training"]
-    },
-    {
-      icon: <Database className="h-8 w-8" />,
-      name: "Cloud Solutions",
-      description: "Scalable cloud infrastructure and migration services",
-      features: ["Cloud Migration", "DevOps", "Serverless Architecture", "Performance Optimization"]
-    },
-    {
-      icon: <Server className="h-8 w-8" />,
-      name: "Infrastructure",
-      description: "Robust and scalable infrastructure solutions",
-      features: ["Server Management", "Load Balancing", "Monitoring", "Disaster Recovery"]
+      features: ["React & Next.js", "Vue & Nuxt.js", "API Development", "UI/UX Design"]
     },
     {
       icon: <Cpu className="h-8 w-8" />,
@@ -213,11 +215,29 @@ function App() {
       features: ["Enterprise Software", "Mobile Apps", "Desktop Applications", "System Integration"]
     },
     {
+      icon: <Server className="h-8 w-8" />,
+      name: "Infrastructure",
+      description: "Robust and scalable infrastructure solutions",
+      features: ["Server Management", "Load Balancing", "Monitoring", "Disaster Recovery"]
+    },
+    {
       icon: <Network className="h-8 w-8" />,
       name: "Network Solutions",
       description: "Comprehensive networking and connectivity solutions",
       features: ["Network Design", "VPN Setup", "WiFi Solutions", "Network Security"]
-    }
+    },
+    {
+      icon: <Database className="h-8 w-8" />,
+      name: "Cloud Solutions",
+      description: "Scalable cloud infrastructure and migration services",
+      features: ["Cloud Migration", "DevOps", "Serverless Architecture", "Performance Optimization"]
+    },
+    {
+      icon: <Shield className="h-8 w-8" />,
+      name: "Cybersecurity",
+      description: "Advanced security solutions to protect your digital assets",
+      features: ["Penetration Testing", "Security Audits", "Incident Response", "Security Training"]
+    },
   ];
 
   const droneServices = [
@@ -275,417 +295,423 @@ function App() {
   return (
     <div className="min-h-screen bg-transparent">
       <StarryBackground />
-      {showSuccess && (
-        <SuccessPopup
-          message="Thank you for reaching out! We'll get back to you soon."
-          onClose={() => setShowSuccess(false)}
-        />
-      )}
-      {showNewsletterSuccess && (
-        <SuccessPopup
-          message="Thank you for subscribing to our newsletter!"
-          onClose={() => setShowNewsletterSuccess(false)}
-        />
-      )}
-      {/* Navigation */}
-      <nav className="fixed w-full bg-black/25 backdrop-blur-sm z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <a href="#" className="text-2xl font-bold text-white flex items-center gap-2">
-              <Plane className="text-[--primary-red]" />
-              Skyline Bulls
-            </a>
-
-            <button className="lg:hidden" onClick={toggleMenu}>
-              {isMenuOpen ? <X /> : <Menu />}
-            </button>
-
-            <div className="hidden lg:flex items-center gap-8">
-              <a href="#services" className="nav-link">Services</a>
-              <a href="#about" className="nav-link">About</a>
-              <a href="#contact" className="nav-link">Contact</a>
-              <a href="#newsletter" className="btn-primary">Newsletter</a>
-            </div>
-          </div>
-
-          {isMenuOpen && (
-            <div className="lg:hidden mt-4 pb-4">
-              <a href="#services" className="block nav-link py-3">Services</a>
-              <a href="#about" className="block nav-link py-3">About</a>
-              <a href="#contact" className="block nav-link py-3">Contact</a>
-              <a href="#newsletter" className="btn-primary block text-center mt-4">Newsletter</a>
-            </div>
+      {!showMainContent ? (
+        <IntroAnimation onComplete={() => setShowMainContent(true)} />
+      ) : (
+        <div ref={mainContentRef} style={{ opacity: 0 }}>
+          {showSuccess && (
+            <SuccessPopup
+              message="Thank you for reaching out! We'll get back to you soon."
+              onClose={() => setShowSuccess(false)}
+            />
           )}
-        </div>
-      </nav>
+          {showNewsletterSuccess && (
+            <SuccessPopup
+              message="Thank you for subscribing to our newsletter!"
+              onClose={() => setShowNewsletterSuccess(false)}
+            />
+          )}
+          {/* Navigation */}
+          <nav className="fixed w-full bg-black/25 backdrop-blur-sm z-50">
+            <div className="container mx-auto px-4 py-4">
+              <div className="flex items-center justify-between">
+                <a href="#" className="text-2xl font-bold text-white flex items-center gap-2">
+                  <Plane className="text-[--primary-red]" />
+                  Skyline Bulls
+                </a>
 
-      {/* Hero Section */}
-      <section className="section pt-32 min-h-screen flex items-center">
-        <div className="container mx-auto px-4">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6">
-            Elevate Your Business with
-            <span className="gradient-text block">Advanced Technology</span>
-          </h1>
-          <p className="text-xl text-white/70 max-w-2xl mb-8">
-            Skyline Bulls Technology delivers cutting-edge IT solutions and innovative drone services
-            to transform your business operations.
-          </p>
-          <div className="flex flex-wrap gap-4">
-            <a href="#contact" className="btn-primary">Get Started <ChevronRight className="inline" /></a>
-            <a href="#services" className="btn-outline">Our Services</a>
-          </div>
-        </div>
-      </section>
+                <button className="lg:hidden" onClick={toggleMenu}>
+                  {isMenuOpen ? <X /> : <Menu />}
+                </button>
 
-      {/* Services Overview Section */}
-      <section id="services" className="section">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold mb-12">Our Services</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="p-8 rounded-lg bg-white/5 hover:bg-white/10 transition-all transform hover:-translate-y-1 duration-300">
-              <Code className="text-[--primary-red] mb-4 h-12 w-12" />
-              <h3 className="text-2xl font-bold mb-4">IT Solutions</h3>
-              <p className="text-white/70 mb-6">
-                Comprehensive IT services including software development, cloud solutions,
-                and cybersecurity to keep your business ahead of the curve.
-              </p>
-              <a href="#it-services" className="inline-flex items-center text-[--primary-red] hover:text-[--primary-red]/80">
-                Learn More <ChevronRight className="ml-1" />
-              </a>
-            </div>
-            <div className="p-8 rounded-lg bg-white/5 hover:bg-white/10 transition-all transform hover:-translate-y-1 duration-300">
-              <Plane className="text-[--primary-red] mb-4 h-12 w-12" />
-              <h3 className="text-2xl font-bold mb-4">Drone Services</h3>
-              <p className="text-white/70 mb-6">
-                Professional drone solutions for aerial photography, surveying,
-                and inspection services with cutting-edge equipment.
-              </p>
-              <a href="#drone-services" className="inline-flex items-center text-[--primary-red] hover:text-[--primary-red]/80">
-                Learn More <ChevronRight className="ml-1" />
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* IT Services Section */}
-      <section id="it-services" className="section">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row gap-12 items-start mb-16">
-            <div className="flex-1 w-full">
-              <h2 className="text-4xl font-bold mb-6">IT Services</h2>
-              <p className="text-xl text-white/70 mb-8">
-                Enterprise-grade solutions built with cutting-edge technology to drive your business forward
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <span className="px-4 py-2 rounded-full bg-white/10 text-sm">Cloud Computing</span>
-                <span className="px-4 py-2 rounded-full bg-white/10 text-sm">Cybersecurity</span>
-                <span className="px-4 py-2 rounded-full bg-white/10 text-sm">Web Development</span>
-                <span className="px-4 py-2 rounded-full bg-white/10 text-sm">DevOps</span>
-              </div>
-            </div>
-            <div className="flex-1 w-full overflow-hidden">
-              <CodeBlock code={codeExample} language="html" fileName="example.html" />
-            </div>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {itServices.map((service, index) => (
-              <div
-                key={index}
-                className="p-6 rounded-lg bg-white/5 hover:bg-white/10 transition-all cursor-pointer group h-[280px] hover:h-auto"
-                onMouseEnter={() => setActiveService(service.name)}
-                onMouseLeave={() => setActiveService(null)}
-              >
-                <div className="text-[--primary-red] mb-4 transform group-hover:scale-110 transition-transform inline-block">
-                  {service.icon}
-                </div>
-                <h3 className="text-xl font-bold mb-2">{service.name}</h3>
-                <p className="text-white/70 mb-4">{service.description}</p>
-                <div className={`grid grid-cols-2 gap-2 transition-all duration-300 ${activeService === service.name ? 'opacity-100 max-h-40' : 'opacity-0 max-h-0 overflow-hidden'}`}>
-                  {service.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-center text-sm text-white/50">
-                      <ChevronRight className="h-4 w-4 mr-1 text-[--primary-red]" />
-                      {feature}
-                    </div>
-                  ))}
+                <div className="hidden lg:flex items-center gap-8">
+                  <a href="#services" className="nav-link">Services</a>
+                  <a href="#about" className="nav-link">About</a>
+                  <a href="#contact" className="nav-link">Contact</a>
+                  <a href="#newsletter" className="btn-primary">Newsletter</a>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* AI & Automation Section */}
-      <section id="ai-services" className="section relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[--primary-red]/5 to-black/20"></div>
-        <div className="container mx-auto px-4 relative">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              AI & Automation
-              <span className="block text-[--primary-red] mt-2">All in One Place</span>
-            </h2>
-            <p className="text-xl text-white/70 max-w-3xl mx-auto">
-              Explore AI and automation solutions from industry leaders to create powerful,
-              reliable systems that transform your business operations.
-            </p>
-          </div>
+              {isMenuOpen && (
+                <div className="lg:hidden mt-4 pb-4">
+                  <a href="#services" className="block nav-link py-3">Services</a>
+                  <a href="#about" className="block nav-link py-3">About</a>
+                  <a href="#contact" className="block nav-link py-3">Contact</a>
+                  <a href="#newsletter" className="btn-primary block text-center mt-4">Newsletter</a>
+                </div>
+              )}
+            </div>
+          </nav>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-            {aiServices.map((service, index) => (
-              <div
-                key={index}
-                className="group bg-white/5 backdrop-blur-sm rounded-xl p-6 hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-[--primary-red]/50 flex flex-col"
-              >
-                <div>
-                  <div className="text-[--primary-red] mb-4">
-                    {service.icon}
+          {/* Hero Section */}
+          <FadeInSection duration={1.2} y={30}>
+            <section className="section pt-32 min-h-screen flex items-center relative overflow-hidden">
+              <InteractiveCircles />
+              <div className="container mx-auto px-4 relative z-10">
+                <h1 className="text-5xl md:text-7xl font-bold mb-6">
+                  Elevate Your Business with
+                  <span className="gradient-text block">Advanced Technology</span>
+                </h1>
+                <p className="text-xl text-white/70 max-w-2xl mb-8">
+                  Skyline Bulls Technology delivers cutting-edge IT solutions and innovative drone services
+                  to transform your business operations.
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  <a href="#contact" className="btn-primary">Get Started <ChevronRight className="inline" /></a>
+                  <a href="#services" className="btn-outline">Our Services</a>
+                </div>
+              </div>
+            </section>
+          </FadeInSection>
+
+          {/* Services Overview Section */}
+          <FadeInSection delay={0.2} duration={1}>
+            <section id="services" className="section">
+              <div className="container mx-auto px-4">
+                <h2 className="text-4xl font-bold mb-12">Our Services</h2>
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="p-8 rounded-lg bg-white/5 hover:bg-white/10 transition-all transform hover:-translate-y-1 duration-300">
+                    <Code className="text-[--primary-red] mb-4 h-12 w-12" />
+                    <h3 className="text-2xl font-bold mb-4">IT Solutions</h3>
+                    <p className="text-white/70 mb-6">
+                      Comprehensive IT services including software development, cloud solutions,
+                      and cybersecurity to keep your business ahead of the curve.
+                    </p>
+                    <a href="#it-services" className="inline-flex items-center text-[--primary-red] hover:text-[--primary-red]/80">
+                      Learn More <ChevronRight className="ml-1" />
+                    </a>
                   </div>
-                  <h3 className="text-xl font-bold mb-3">{service.name}</h3>
-                  <p className="text-white/70 mb-6 text-sm">{service.description}</p>
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="text-sm font-semibold text-[--primary-red] mb-2">Integrations</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {service.integrations.map((integration, idx) => (
-                          <span key={idx} className="text-xs px-2 py-1 rounded-full bg-white/10 text-white/70">
-                            {integration}
-                          </span>
-                        ))}
-                      </div>
+                  <div className="p-8 rounded-lg bg-white/5 hover:bg-white/10 transition-all transform hover:-translate-y-1 duration-300">
+                    <Plane className="text-[--primary-red] mb-4 h-12 w-12" />
+                    <h3 className="text-2xl font-bold mb-4">Drone Services</h3>
+                    <p className="text-white/70 mb-6">
+                      Professional drone solutions for aerial photography, surveying,
+                      and inspection services with cutting-edge equipment.
+                    </p>
+                    <a href="#drone-services" className="inline-flex items-center text-[--primary-red] hover:text-[--primary-red]/80">
+                      Learn More <ChevronRight className="ml-1" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </FadeInSection>
+
+          {/* IT Services Section */}
+          <FadeInSection delay={0.3} duration={1}>
+            <section id="it-services" className="section">
+              <div className="container mx-auto px-4">
+                <div className="flex flex-col md:flex-row gap-12 items-start mb-16">
+                  <div className="flex-1 w-full">
+                    <h2 className="text-4xl font-bold mb-6">IT Services</h2>
+                    <p className="text-xl text-white/70 mb-8">
+                      Enterprise-grade solutions built with cutting-edge technology to drive your business forward
+                    </p>
+                    <div className="flex flex-wrap gap-4">
+                      <span className="px-4 py-2 rounded-full bg-white/10 text-sm transition-all duration-300 hover:scale-110 hover:bg-[--primary-red]/20 hover:text-white hover:shadow-lg hover:shadow-[--primary-red]/20 cursor-pointer transform-gpu">Web Development</span>
+                      <span className="px-4 py-2 rounded-full bg-white/10 text-sm transition-all duration-300 hover:scale-110 hover:bg-[--primary-red]/20 hover:text-white hover:shadow-lg hover:shadow-[--primary-red]/20 cursor-pointer transform-gpu">Software Development</span>
+                      <span className="px-4 py-2 rounded-full bg-white/10 text-sm transition-all duration-300 hover:scale-110 hover:bg-[--primary-red]/20 hover:text-white hover:shadow-lg hover:shadow-[--primary-red]/20 cursor-pointer transform-gpu">Content Management</span>
+                      <span className="px-4 py-2 rounded-full bg-white/10 text-sm transition-all duration-300 hover:scale-110 hover:bg-[--primary-red]/20 hover:text-white hover:shadow-lg hover:shadow-[--primary-red]/20 cursor-pointer transform-gpu">DevOps</span>
                     </div>
-                    <div>
-                      <h4 className="text-sm font-semibold text-[--primary-red] mb-2">Features</h4>
-                      <div className="space-y-1">
+                  </div>
+                  <div className="flex-1 w-full overflow-hidden">
+                    <CodeBlock code={codeExample} language="html" fileName="example.html" />
+                  </div>
+                </div>
+                
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {itServices.map((service, index) => (
+                    <div
+                      key={index}
+                      className="p-6 rounded-lg bg-white/5 hover:bg-white/10 transition-all cursor-pointer group h-[280px] hover:h-auto"
+                      onMouseEnter={() => setActiveService(service.name)}
+                      onMouseLeave={() => setActiveService(null)}
+                    >
+                      <div className="text-[--primary-red] mb-4 transform group-hover:scale-110 transition-transform inline-block">
+                        {service.icon}
+                      </div>
+                      <h3 className="text-xl font-bold mb-2">{service.name}</h3>
+                      <p className="text-white/70 mb-4">{service.description}</p>
+                      <div className={`grid grid-cols-2 gap-2 transition-all duration-300 ${activeService === service.name ? 'opacity-100 max-h-40' : 'opacity-0 max-h-0 overflow-hidden'}`}>
                         {service.features.map((feature, idx) => (
-                          <div key={idx} className="flex items-center text-sm text-white/70">
-                            <Sparkles className="h-3 w-3 mr-2 text-[--primary-red]" />
+                          <div key={idx} className="flex items-center text-sm text-white/50">
+                            <ChevronRight className="h-4 w-4 mr-1 text-[--primary-red]" />
                             {feature}
                           </div>
                         ))}
                       </div>
                     </div>
-                  </div>
-                </div>
-                <div className="mt-auto pt-6 border-t border-white/10">
-                  <button className="w-full py-2 px-4 rounded-lg bg-[--primary-red]/10 hover:bg-[--primary-red]/20 text-[--primary-red] transition-all duration-300 flex items-center justify-center gap-2">
-                    Learn More <Zap className="h-4 w-4" />
-                  </button>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
+            </section>
+          </FadeInSection>
 
-          <div className="flex justify-center">
-            <a href="#contact" className="btn-primary flex items-center gap-2">
-              Get Started with AI <ChevronRight className="h-4 w-4" />
-            </a>
-          </div>
-        </div>
-      </section>
+          {/* AI & Automation Section */}
+          <FadeInSection delay={0.4} duration={1}>
+            <section id="ai-services" className="section relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-b from-[--primary-red]/5 to-black/20"></div>
+              <div className="container mx-auto px-4 relative">
+                <div className="text-center mb-16">
+                  <h2 className="text-4xl md:text-5xl font-bold mb-6">
+                    AI & Automation
+                    <span className="block text-[--primary-red] mt-2">All in One Place</span>
+                  </h2>
+                  <p className="text-xl text-white/70 max-w-3xl mx-auto">
+                    Explore AI and automation solutions from industry leaders to create powerful,
+                    reliable systems that transform your business operations.
+                  </p>
+                </div>
 
-      {/* Drone Services Section */}
-      <section id="drone-services" className="section bg-gradient-to-b from-[--primary-red]/10 to-black/20">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-6">Drone Services</h2>
-            <p className="text-xl text-white/70 max-w-3xl mx-auto">
-              Professional aerial solutions leveraging cutting-edge drone technology
-              to provide unique perspectives and valuable insights
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            {droneServices.map((service, index) => (
-              <div
-                key={index}
-                className="group relative p-8 rounded-lg bg-white/5 hover:bg-white/10 transition-all overflow-hidden h-[280px] hover:h-auto"
-                onMouseEnter={() => setActiveService(service.name)}
-                onMouseLeave={() => setActiveService(null)}
-              >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[--primary-red]/10 rounded-full blur-3xl group-hover:bg-[--primary-red]/20 transition-all"></div>
-                <div className="relative">
-                  <div className="text-[--primary-red] mb-6 transform group-hover:scale-110 transition-transform inline-block">
-                    {service.icon}
-                  </div>
-                  <h3 className="text-xl font-bold mb-4">{service.name}</h3>
-                  <p className="text-white/70 mb-6">{service.description}</p>
-                  <div className={`space-y-2 transition-all duration-300 ${activeService === service.name ? 'opacity-100 max-h-40' : 'opacity-0 max-h-0 overflow-hidden'}`}>
-                    {service.features.map((feature, idx) => (
-                      <div key={idx} className="flex items-center text-sm text-white/50">
-                        <ChevronRight className="h-4 w-4 mr-2 text-[--primary-red]" />
-                        {feature}
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+                  {aiServices.map((service, index) => (
+                    <div
+                      key={index}
+                      className="group bg-white/5 backdrop-blur-sm rounded-xl p-6 hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-[--primary-red]/50 flex flex-col"
+                    >
+                      <div>
+                        <div className="text-[--primary-red] mb-4">
+                          {service.icon}
+                        </div>
+                        <h3 className="text-xl font-bold mb-3">{service.name}</h3>
+                        <p className="text-white/70 mb-6 text-sm">{service.description}</p>
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="text-sm font-semibold text-[--primary-red] mb-2">Integrations</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {service.integrations.map((integration, idx) => (
+                                <span key={idx} className="text-xs px-2 py-1 rounded-full bg-white/10 text-white/70">
+                                  {integration}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-semibold text-[--primary-red] mb-2">Features</h4>
+                            <div className="space-y-1">
+                              {service.features.map((feature, idx) => (
+                                <div key={idx} className="flex items-center text-sm text-white/70">
+                                  <Sparkles className="h-3 w-3 mr-2 text-[--primary-red]" />
+                                  {feature}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    ))}
+                      <div className="mt-auto pt-6 border-t border-white/10">
+                        <button className="w-full py-2 px-4 rounded-lg bg-[--primary-red]/10 hover:bg-[--primary-red]/20 text-[--primary-red] transition-all duration-300 flex items-center justify-center gap-2">
+                          Learn More <Zap className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex justify-center">
+                  <a href="#contact" className="btn-primary flex items-center gap-2">
+                    Get Started with AI <ChevronRight className="h-4 w-4" />
+                  </a>
+                </div>
+              </div>
+            </section>
+          </FadeInSection>
+
+          {/* Drone Services Section */}
+          <FadeInSection delay={0.5} duration={1}>
+            <section id="drone-services" className="section bg-gradient-to-b from-[--primary-red]/10 to-black/20">
+              <div className="container mx-auto px-4">
+                <div className="text-center mb-16">
+                  <h2 className="text-4xl font-bold mb-6">Drone Services</h2>
+                  <p className="text-xl text-white/70 max-w-3xl mx-auto">
+                    Professional aerial solutions leveraging cutting-edge drone technology
+                    to provide unique perspectives and valuable insights
+                  </p>
+                </div>
+                
+                <div className="grid md:grid-cols-3 gap-8">
+                  {droneServices.map((service, index) => (
+                    <div
+                      key={index}
+                      className="group relative p-8 rounded-lg bg-white/5 hover:bg-white/10 transition-all overflow-hidden h-[280px] hover:h-auto"
+                      onMouseEnter={() => setActiveService(service.name)}
+                      onMouseLeave={() => setActiveService(null)}
+                    >
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-[--primary-red]/10 rounded-full blur-3xl group-hover:bg-[--primary-red]/20 transition-all"></div>
+                      <div className="relative">
+                        <div className="text-[--primary-red] mb-6 transform group-hover:scale-110 transition-transform inline-block">
+                          {service.icon}
+                        </div>
+                        <h3 className="text-xl font-bold mb-4">{service.name}</h3>
+                        <p className="text-white/70 mb-6">{service.description}</p>
+                        <div className={`space-y-2 transition-all duration-300 ${activeService === service.name ? 'opacity-100 max-h-40' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+                          {service.features.map((feature, idx) => (
+                            <div key={idx} className="flex items-center text-sm text-white/50">
+                              <ChevronRight className="h-4 w-4 mr-2 text-[--primary-red]" />
+                              {feature}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </FadeInSection>
+
+          {/* Newsletter Section */}
+          {showNewsletterSection && (
+            <FadeInSection delay={0.6} duration={1}>
+              <section id="newsletter" className="section bg-[--primary-red]/5">
+                <div className="container mx-auto px-4">
+                  <h2 className="text-4xl font-bold mb-6">Stay Updated</h2>
+                  <p className="text-white/70 mb-8 max-w-2xl">
+                    Subscribe to our newsletter for the latest updates in technology and drone innovations.
+                  </p>
+                  <form onSubmit={handleNewsletterSubmit} className="max-w-md">
+                    <div className="flex flex-col gap-4">
+                      <div>
+                        <input
+                          type="email"
+                          value={newsletterForm.email}
+                          onChange={handleNewsletterChange}
+                          placeholder="Enter your email"
+                          className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${newsletterErrors.email ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40`}
+                          required
+                        />
+                        {newsletterErrors.email && (
+                          <p className="mt-1 text-sm text-red-500">{newsletterErrors.email}</p>
+                        )}
+                      </div>
+                      <button 
+                        type="submit" 
+                        className="btn-primary relative"
+                        disabled={isNewsletterSubmitting}
+                      >
+                        {isNewsletterSubmitting ? (
+                          <span className="flex items-center gap-2">
+                            <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                            Subscribing...
+                          </span>
+                        ) : (
+                          'Subscribe'
+                        )}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </section>
+            </FadeInSection>
+          )}
+
+          {/* Contact Section */}
+            <section id="contact" className="section">
+              <div className="container mx-auto px-4">
+                <h2 className="text-4xl font-bold mb-12">Get in Touch</h2>
+                <div className="grid md:grid-cols-2 gap-12">
+                  <div>
+                    <h3 className="text-2xl font-bold mb-4">Contact Information</h3>
+                    <p className="text-white/70 mb-6">
+                      Ready to elevate your business? Reach out to us for a consultation.
+                    </p>
+                    <div className="flex items-center gap-2 text-white/70 mb-4">
+                      <Send className="h-5 w-5" />
+                      office@skylinebulls.com
+                    </div>
                   </div>
+                  <form onSubmit={handleContactSubmit} className="space-y-6">
+                    <div>
+                      <input
+                        type="text"
+                        placeholder="Your Name"
+                        name="name"
+                        value={contactForm.name}
+                        onChange={handleContactChange}
+                        className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.name ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40 ${cooldownTime > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        required
+                        disabled={cooldownTime > 0}
+                      />
+                      {formErrors.name && (
+                        <p className="mt-1 text-sm text-red-500">{formErrors.name}</p>
+                      )}
+                    </div>
+                    <div>
+                      <input
+                        type="email"
+                        placeholder="Your Email"
+                        name="email"
+                        value={contactForm.email}
+                        onChange={handleContactChange}
+                        className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.email ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40 ${cooldownTime > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        required
+                        disabled={cooldownTime > 0}
+                      />
+                      {formErrors.email && (
+                        <p className="mt-1 text-sm text-red-500">{formErrors.email}</p>
+                      )}
+                    </div>
+                    <div>
+                      <div className="relative">
+                        <input
+                          type="tel"
+                          placeholder="Your Phone (optional)"
+                          name="phone"
+                          value={contactForm.phone}
+                          onChange={handleContactChange}
+                          className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.phone ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40 ${cooldownTime > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          pattern="[0-9+\-\s]*"
+                          title="Please enter a valid phone number"
+                          disabled={cooldownTime > 0}
+                        />
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/30">Optional</span>
+                      </div>
+                      {formErrors.phone && (
+                        <p className="mt-1 text-sm text-red-500">{formErrors.phone}</p>
+                      )}
+                    </div>
+                    <div>
+                      <textarea
+                        placeholder="Your Message"
+                        rows={4}
+                        name="message"
+                        value={contactForm.message}
+                        onChange={handleContactChange}
+                        className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.message ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40 ${cooldownTime > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        required
+                        disabled={cooldownTime > 0}
+                      ></textarea>
+                      {formErrors.message && (
+                        <p className="mt-1 text-sm text-red-500">{formErrors.message}</p>
+                      )}
+                    </div>
+                    <button 
+                      type="submit" 
+                      className={`btn-primary relative ${cooldownTime > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={isSubmitting || cooldownTime > 0}
+                    >
+                      {isSubmitting ? (
+                        <span className="flex items-center gap-2">
+                          <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                          Sending...
+                        </span>
+                      ) : cooldownTime > 0 ? (
+                        <span className="flex items-center gap-2">
+                          <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+                          Please wait {cooldownTime}s
+                        </span>
+                      ) : (
+                        'Send Message'
+                      )}
+                    </button>
+                  </form>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            </section>
 
-      {/* Newsletter Section */}
-      {showNewsletterSection && (
-        <section id="newsletter" className="section bg-[--primary-red]/5">
-          <div className="container mx-auto px-4">
-            <h2 className="text-4xl font-bold mb-6">Stay Updated</h2>
-            <p className="text-white/70 mb-8 max-w-2xl">
-              Subscribe to our newsletter for the latest updates in technology and drone innovations.
-            </p>
-            <form onSubmit={handleNewsletterSubmit} className="max-w-md">
-              <div className="flex flex-col gap-4">
-                <div>
-                  <input
-                    type="email"
-                    value={newsletterForm.email}
-                    onChange={handleNewsletterChange}
-                    placeholder="Enter your email"
-                    className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${newsletterErrors.email ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40`}
-                    required
-                  />
-                  {newsletterErrors.email && (
-                    <p className="mt-1 text-sm text-red-500">{newsletterErrors.email}</p>
-                  )}
-                </div>
-                <button 
-                  type="submit" 
-                  className="btn-primary relative"
-                  disabled={isNewsletterSubmitting}
-                >
-                  {isNewsletterSubmitting ? (
-                    <span className="flex items-center gap-2">
-                      <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-                      Subscribing...
-                    </span>
-                  ) : (
-                    'Subscribe'
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </section>
+          <Footer />
+        </div>
       )}
-
-      {/* Contact Section */}
-      <section id="contact" className="section">
-        <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold mb-12">Get in Touch</h2>
-          <div className="grid md:grid-cols-2 gap-12">
-            <div>
-              <h3 className="text-2xl font-bold mb-4">Contact Information</h3>
-              <p className="text-white/70 mb-6">
-                Ready to elevate your business? Reach out to us for a consultation.
-              </p>
-              <div className="flex items-center gap-2 text-white/70 mb-4">
-                <Send className="h-5 w-5" />
-                contact@skylinebulls.tech
-              </div>
-            </div>
-            <form onSubmit={handleContactSubmit} className="space-y-6">
-              <div>
-                <input
-                  type="text"
-                  placeholder="Your Name"
-                  name="name"
-                  value={contactForm.name}
-                  onChange={handleContactChange}
-                  className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.name ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40 ${cooldownTime > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  required
-                  disabled={cooldownTime > 0}
-                />
-                {formErrors.name && (
-                  <p className="mt-1 text-sm text-red-500">{formErrors.name}</p>
-                )}
-              </div>
-              <div>
-                <input
-                  type="email"
-                  placeholder="Your Email"
-                  name="email"
-                  value={contactForm.email}
-                  onChange={handleContactChange}
-                  className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.email ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40 ${cooldownTime > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  required
-                  disabled={cooldownTime > 0}
-                />
-                {formErrors.email && (
-                  <p className="mt-1 text-sm text-red-500">{formErrors.email}</p>
-                )}
-              </div>
-              <div>
-                <div className="relative">
-                  <input
-                    type="tel"
-                    placeholder="Your Phone (optional)"
-                    name="phone"
-                    value={contactForm.phone}
-                    onChange={handleContactChange}
-                    className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.phone ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40 ${cooldownTime > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    pattern="[0-9+\-\s]*"
-                    title="Please enter a valid phone number"
-                    disabled={cooldownTime > 0}
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-white/30">Optional</span>
-                </div>
-                {formErrors.phone && (
-                  <p className="mt-1 text-sm text-red-500">{formErrors.phone}</p>
-                )}
-              </div>
-              <div>
-                <textarea
-                  placeholder="Your Message"
-                  rows={4}
-                  name="message"
-                  value={contactForm.message}
-                  onChange={handleContactChange}
-                  className={`w-full px-4 py-3 rounded-lg bg-white/10 border ${formErrors.message ? 'border-red-500' : 'border-white/20'} focus:outline-none focus:border-white/40 ${cooldownTime > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  required
-                  disabled={cooldownTime > 0}
-                ></textarea>
-                {formErrors.message && (
-                  <p className="mt-1 text-sm text-red-500">{formErrors.message}</p>
-                )}
-              </div>
-              <button 
-                type="submit" 
-                className={`btn-primary relative ${cooldownTime > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                disabled={isSubmitting || cooldownTime > 0}
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-                    Sending...
-                  </span>
-                ) : cooldownTime > 0 ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
-                    Please wait {cooldownTime}s
-                  </span>
-                ) : (
-                  'Send Message'
-                )}
-              </button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-8 border-t border-white/10">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center gap-2 mb-4 md:mb-0">
-              <Plane className="text-[--primary-red]" />
-              <span className="font-bold">Skyline Bulls Technology</span>
-            </div>
-            <div className="text-white/50">
-              © {new Date().getFullYear()} Skyline Bulls. All rights reserved. | Deployed with ❤️ on Vercel
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
