@@ -1,5 +1,5 @@
 import React from 'react';
-import { Send } from 'lucide-react';
+import { Send, Phone, MapPin } from 'lucide-react';
 
 interface ContactSectionProps {
   contactForm: {
@@ -38,9 +38,29 @@ const ContactSection: React.FC<ContactSectionProps> = ({
           <p className="text-white/70 mb-6">
             Ready to elevate your business? Reach out to us for a consultation.
           </p>
-          <div className="flex items-center gap-2 text-white/70 mb-4">
+          <div className="flex items-center gap-2 text-white/70 mb-2">
             <Send className="h-5 w-5" />
-            <a href="mailto:office@skylinebulls.com">office@skylinebulls.com</a>
+            <span>office@skylinebulls.com</span>
+          </div>
+          <div className="flex items-center gap-2 text-white/70 mb-2">
+            <Phone className="h-5 w-5" />
+            <a href="tel:+13122593536" className="hover:underline">(312)-259-3536</a>
+          </div>
+          <div className="flex items-center gap-2 text-white/70 mb-2">
+            <MapPin className="h-5 w-5" />
+            <span>4926 Lunt Ave, Skokie, IL 60077</span>
+          </div>
+          <div className="mt-4 rounded-lg overflow-hidden shadow-lg">
+            <iframe
+              title="Skyline Bulls Location"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2967.073964479624!2d-87.7530736845536!3d42.0263709792107!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x880fcf6e2e2e2e2f%3A0x1234567890abcdef!2s4926%20Lunt%20Ave%2C%20Skokie%2C%20IL%2060077%2C%20USA!5e0!3m2!1sen!2sus!4v1680000000000!5m2!1sen!2sus"
+              width="100%"
+              height="250px"
+              style={{ border: 0 }}
+              allowFullScreen={false}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
           </div>
         </div>
         <form onSubmit={handleContactSubmit} className="space-y-6">
