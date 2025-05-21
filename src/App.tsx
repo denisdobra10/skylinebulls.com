@@ -10,6 +10,7 @@ import FadeInSection from './components/FadeInSection';
 import Footer from './components/Footer';
 import './styles/prism-custom.css';
 import IntroAnimation from './components/IntroAnimation';
+import Logo from './components/Logo';
 
 // Validation schema
 const contactFormSchema = z.object({
@@ -30,7 +31,6 @@ type NewsletterFormType = z.infer<typeof newsletterSchema>;
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeService, setActiveService] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
@@ -50,6 +50,8 @@ function App() {
   const [showNewsletterSection, setShowNewsletterSection] = useState(true);
   const [showMainContent, setShowMainContent] = useState(false);
   const mainContentRef = useRef<HTMLDivElement>(null);
+  const [consentChecked, setConsentChecked] = useState(false);
+  const [consentError, setConsentError] = useState('');
 
   // Add cooldown timer effect
   useEffect(() => {
@@ -135,6 +137,11 @@ function App() {
   const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormErrors({});
+    setConsentError('');
+    if (!consentChecked) {
+      setConsentError('You must accept data processing to submit the form.');
+      return;
+    }
 
     try {
       const validatedData = contactFormSchema.parse(contactForm);
@@ -264,10 +271,16 @@ function App() {
   const aiServices = [
     {
       icon: <Bot className="h-8 w-8" />,
-      name: "AI-Powered Agents",
-      description: "Custom AI agents that automate complex tasks and workflows",
-      integrations: ["OpenAI", "Anthropic", "Google AI", "HuggingFace"],
-      features: ["Natural Language Processing", "Task Automation", "24/7 Operation", "Adaptive Learning"]
+      name: "AI Chatbots & Virtual Assistants",
+      description: "Deploy intelligent chatbots and virtual assistants to automate customer support and engagement.",
+      integrations: ["OpenAI", "Dialogflow", "Microsoft Bot", "Rasa"],
+      features: [
+        "24/7 Customer Support",
+        "Multi-Channel Integration",
+        "Natural Language Understanding",
+        "Custom Workflows",
+        "Analytics & Reporting"
+      ]
     },
     {
       icon: <Brain className="h-8 w-8" />,
@@ -281,14 +294,14 @@ function App() {
       name: "Workflow Automation",
       description: "End-to-end automation solutions for business processes",
       integrations: ["Zapier", "Make", "Power Automate", "n8n"],
-      features: ["Process Automation", "Custom Workflows", "Integration Hub", "Error Handling"]
+      features: ["Process Automation", "Custom Workflows", "Integration Hub", "Error Handling", "AI-Powered Agents"]
     },
     {
       icon: <GitBranch className="h-8 w-8" />,
       name: "LLM Integration",
       description: "Seamless integration of Large Language Models into your systems",
       integrations: ["GPT-4", "Claude", "PaLM", "Llama"],
-      features: ["API Integration", "Custom Training", "Prompt Engineering", "Response Optimization"]
+      features: ["API Integration", "Custom Training", "Prompt Engineering", "Response Optimization", "Human-in-the-Loop"]
     }
   ];
 
@@ -315,10 +328,7 @@ function App() {
           <nav className="fixed w-full bg-black/25 backdrop-blur-sm z-50">
             <div className="container mx-auto px-4 py-4">
               <div className="flex items-center justify-between">
-                <a href="#" className="text-2xl font-bold text-white flex items-center gap-2">
-                  <Plane className="text-[--primary-red]" />
-                  Skyline Bulls
-                </a>
+                <a href="#" className="block"><Logo /></a>
 
                 <button className="lg:hidden" onClick={toggleMenu}>
                   {isMenuOpen ? <X /> : <Menu />}
@@ -333,11 +343,11 @@ function App() {
               </div>
 
               {isMenuOpen && (
-                <div className="lg:hidden mt-4 pb-4">
-                  <a href="#services" className="block nav-link py-3">Services</a>
-                  <a href="#about" className="block nav-link py-3">About</a>
-                  <a href="#contact" className="block nav-link py-3">Contact</a>
-                  <a href="#newsletter" className="btn-primary block text-center mt-4">Newsletter</a>
+                <div className="lg:hidden mt-4 pb-6 px-6 pt-6 bg-black/80 rounded-2xl border border-white/10 shadow-2xl backdrop-blur-xl flex flex-col gap-2">
+                  <a href="#services" className="block text-lg font-semibold py-3 px-2 rounded-lg hover:bg-white/10 transition-all text-white/90" onClick={() => setIsMenuOpen(false)}>Services</a>
+                  <a href="#about" className="block text-lg font-semibold py-3 px-2 rounded-lg hover:bg-white/10 transition-all text-white/90" onClick={() => setIsMenuOpen(false)}>About</a>
+                  <a href="#contact" className="block text-lg font-semibold py-3 px-2 rounded-lg hover:bg-white/10 transition-all text-white/90" onClick={() => setIsMenuOpen(false)}>Contact</a>
+                  <a href="#newsletter" className="btn-primary block text-center mt-4" onClick={() => setIsMenuOpen(false)}>Newsletter</a>
                 </div>
               )}
             </div>
@@ -423,16 +433,14 @@ function App() {
                   {itServices.map((service, index) => (
                     <div
                       key={index}
-                      className="p-6 rounded-lg bg-white/5 hover:bg-white/10 transition-all cursor-pointer group h-[280px] hover:h-auto"
-                      onMouseEnter={() => setActiveService(service.name)}
-                      onMouseLeave={() => setActiveService(null)}
+                      className="p-6 rounded-lg bg-white/5 hover:bg-white/10 transition-all cursor-pointer group"
                     >
                       <div className="text-[--primary-red] mb-4 transform group-hover:scale-110 transition-transform inline-block">
                         {service.icon}
                       </div>
                       <h3 className="text-xl font-bold mb-2">{service.name}</h3>
                       <p className="text-white/70 mb-4">{service.description}</p>
-                      <div className={`grid grid-cols-2 gap-2 transition-all duration-300 ${activeService === service.name ? 'opacity-100 max-h-40' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+                      <div className="grid grid-cols-2 gap-2 opacity-100 max-h-40">
                         {service.features.map((feature, idx) => (
                           <div key={idx} className="flex items-center text-sm text-white/50">
                             <ChevronRight className="h-4 w-4 mr-1 text-[--primary-red]" />
@@ -463,13 +471,13 @@ function App() {
                   </p>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16 items-stretch">
                   {aiServices.map((service, index) => (
                     <div
                       key={index}
-                      className="group bg-white/5 backdrop-blur-sm rounded-xl p-6 hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-[--primary-red]/50 flex flex-col"
+                      className="group bg-white/5 backdrop-blur-sm rounded-xl p-6 pb-8 hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-[--primary-red]/50 flex flex-col h-full"
                     >
-                      <div>
+                      <div className="flex-1 flex flex-col">
                         <div className="text-[--primary-red] mb-4">
                           {service.icon}
                         </div>
@@ -499,7 +507,7 @@ function App() {
                           </div>
                         </div>
                       </div>
-                      <div className="mt-auto pt-6 border-t border-white/10">
+                      <div className="mt-8 pt-6 border-t border-white/10">
                         <button className="w-full py-2 px-4 rounded-lg bg-[--primary-red]/10 hover:bg-[--primary-red]/20 text-[--primary-red] transition-all duration-300 flex items-center justify-center gap-2">
                           Learn More <Zap className="h-4 w-4" />
                         </button>
@@ -533,9 +541,7 @@ function App() {
                   {droneServices.map((service, index) => (
                     <div
                       key={index}
-                      className="group relative p-8 rounded-lg bg-white/5 hover:bg-white/10 transition-all overflow-hidden h-[280px] hover:h-auto"
-                      onMouseEnter={() => setActiveService(service.name)}
-                      onMouseLeave={() => setActiveService(null)}
+                      className="group relative p-8 rounded-lg bg-white/5 hover:bg-white/10 transition-all"
                     >
                       <div className="absolute top-0 right-0 w-32 h-32 bg-[--primary-red]/10 rounded-full blur-3xl group-hover:bg-[--primary-red]/20 transition-all"></div>
                       <div className="relative">
@@ -544,7 +550,7 @@ function App() {
                         </div>
                         <h3 className="text-xl font-bold mb-4">{service.name}</h3>
                         <p className="text-white/70 mb-6">{service.description}</p>
-                        <div className={`space-y-2 transition-all duration-300 ${activeService === service.name ? 'opacity-100 max-h-40' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+                        <div className="space-y-2 opacity-100 max-h-40">
                           {service.features.map((feature, idx) => (
                             <div key={idx} className="flex items-center text-sm text-white/50">
                               <ChevronRight className="h-4 w-4 mr-2 text-[--primary-red]" />
@@ -685,6 +691,21 @@ function App() {
                         <p className="mt-1 text-sm text-red-500">{formErrors.message}</p>
                       )}
                     </div>
+                    <div className="flex items-start gap-2">
+                      <input
+                        type="checkbox"
+                        id="consent"
+                        checked={consentChecked}
+                        onChange={e => setConsentChecked(e.target.checked)}
+                        className="mt-1"
+                        required
+                        disabled={cooldownTime > 0}
+                      />
+                      <label htmlFor="consent" className="text-sm text-white/70 select-none">
+                        I accept that my data will be processed for the purpose of responding to my inquiry, marketing updates, and other communications in accordance with the US and EU data protection laws.
+                      </label>
+                    </div>
+                    {consentError && <p className="text-sm text-red-500">{consentError}</p>}
                     <button 
                       type="submit" 
                       className={`btn-primary relative ${cooldownTime > 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
